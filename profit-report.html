@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit Report - SM PRINT TECHNOLOGY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .report-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 90px 32px 40px;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .date-range-selector {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .profit-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .profit-card {
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        
+        .profit-card.revenue::before {
+            background: linear-gradient(to right, #10b981, #059669);
+        }
+        
+        .profit-card.expenses::before {
+            background: linear-gradient(to right, #ef4444, #dc2626);
+        }
+        
+        .profit-card.profit::before {
+            background: linear-gradient(to right, #667eea, #764ba2);
+        }
+        
+        .profit-card.margin::before {
+            background: linear-gradient(to right, #f59e0b, #d97706);
+        }
+        
+        .profit-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .profit-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chart-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin-bottom: 30px;
+            min-height: 400px;
+        }
+        
+        .expense-breakdown {
+            margin-top: 30px;
+        }
+        
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s;
+        }
+        
+        .expense-item:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .expense-purpose {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .expense-amount {
+            font-weight: 700;
+            color: #ef4444;
+        }
+        
+        .expense-date {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .export-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </button>
+
+    <div class="report-container">
+        <div class="section-header">
+            <div>
+                <h1 style="font-size: 32px; margin-bottom: 8px;">Profit Report</h1>
+                <p class="subtitle">Analyze revenue, expenses, and profit margins</p>
+            </div>
+        </div>
+        
+        <div class="glass-card" style="margin-bottom: 30px;">
+            <div class="date-range-selector">
+                <div>
+                    <label style="font-weight: 600; margin-right: 10px;">From:</label>
+                    <input type="date" id="startDate" class="form-input-inline">
+                </div>
+                <div>
+                    <label style="font-weight: 600; margin-right: 10px;">To:</label>
+                    <input type="date" id="endDate" class="form-input-inline">
+                </div>
+                <button class="btn btn-primary" id="generateBtn" style="width: auto;">
+                    <i class="fas fa-chart-bar"></i> Generate Report
+                </button>
+            </div>
+        </div>
+
+        <div class="profit-cards">
+            <div class="profit-card glass-card revenue">
+                <div class="profit-label">Total Revenue</div>
+                <div class="profit-value" id="totalRevenue" style="color: #10b981;">৳0.00</div>
+                <small id="revenueTransactions">0 transactions</small>
+            </div>
+            
+            <div class="profit-card glass-card expenses">
+                <div class="profit-label">Total Expenses</div>
+                <div class="profit-value" id="totalExpenses" style="color: #ef4444;">৳0.00</div>
+                <small id="expenseCount">0 expenses</small>
+            </div>
+            
+            <div class="profit-card glass-card profit">
+                <div class="profit-label">Net Profit</div>
+                <div class="profit-value" id="netProfit" style="color: #667eea;">৳0.00</div>
+                <small id="profitMargin">0% margin</small>
+            </div>
+            
+            <div class="profit-card glass-card margin">
+                <div class="profit-label">Average Daily</div>
+                <div class="profit-value" id="avgDaily" style="color: #f59e0b;">৳0.00</div>
+                <small id="daysCount">0 days</small>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Revenue vs Expenses</div>
+                <button class="export-btn" onclick="exportToPDF()">
+                    <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+            </div>
+            <canvas id="profitChart"></canvas>
+        </div>
+
+        <div class="glass-card">
+            <div class="chart-header">
+                <div class="chart-title">Expense Breakdown</div>
+            </div>
+            <div class="expense-breakdown" id="expenseBreakdown">
+                <p style="text-align: center; color: var(--text-tertiary); padding: 20px;">
+                    No expense data for selected period
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let profitChart = null;
+        
+        function init() {
+            // Set default date range (last 30 days)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+            
+            // Generate initial report
+            generateReport();
+            
+            // Event listener
+            document.getElementById('generateBtn').addEventListener('click', generateReport);
+        }
+        
+        function generateReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            // Get data from localStorage
+            const sales = JSON.parse(localStorage.getItem('shopflow_sales') || '[]');
+            const expenses = JSON.parse(localStorage.getItem('shopflow_expenses') || '[]');
+            
+            // Filter by date range
+            const filteredSales = sales.filter(s => s.date >= startDate && s.date <= endDate);
+            const filteredExpenses = expenses.filter(e => e.date >= startDate && e.date <= endDate);
+            
+            // Calculate totals
+            const totalRevenue = filteredSales.reduce((sum, s) => sum + s.amount, 0);
+            const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const netProfit = totalRevenue - totalExpenses;
+            const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue * 100) : 0;
+            
+            // Calculate days
+            const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+            const avgDaily = netProfit / days;
+            
+            // Update cards
+            document.getElementById('totalRevenue').textContent = '৳' + formatNumber(totalRevenue);
+            document.getElementById('revenueTransactions').textContent = filteredSales.length + ' transactions';
+            
+            document.getElementById('totalExpenses').textContent = '৳' + formatNumber(totalExpenses);
+            document.getElementById('expenseCount').textContent = filteredExpenses.length + ' expenses';
+            
+            document.getElementById('netProfit').textContent = '৳' + formatNumber(netProfit);
+            document.getElementById('profitMargin').textContent = profitMargin.toFixed(1) + '% margin';
+            
+            document.getElementById('avgDaily').textContent = '৳' + formatNumber(avgDaily);
+            document.getElementById('daysCount').textContent = days + ' days';
+            
+            // Update chart
+            updateChart(startDate, endDate, filteredSales, filteredExpenses);
+            
+            // Update expense breakdown
+            updateExpenseBreakdown(filteredExpenses);
+        }
+        
+        function updateChart(startDate, endDate, sales, expenses) {
+            // Group by date
+            const dailyRevenue = {};
+            const dailyExpenses = {};
+            
+            // Initialize all dates in range
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                dailyRevenue[dateStr] = 0;
+                dailyExpenses[dateStr] = 0;
+            }
+            
+            // Fill in actual data
+            sales.forEach(s => {
+                dailyRevenue[s.date] = (dailyRevenue[s.date] || 0) + s.amount;
+            });
+            
+            expenses.forEach(e => {
+                dailyExpenses[e.date] = (dailyExpenses[e.date] || 0) + e.amount;
+            });
+            
+            // Prepare chart data
+            const labels = Object.keys(dailyRevenue).sort();
+            const revenueData = labels.map(date => dailyRevenue[date]);
+            const expenseData = labels.map(date => dailyExpenses[date]);
+            
+            // Destroy previous chart
+            if (profitChart) {
+                profitChart.destroy();
+            }
+            
+            // Create new chart
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            profitChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(d => new Date(d).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })),
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: revenueData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Expenses',
+                            data: expenseData,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ৳' + formatNumber(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '৳' + formatNumber(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateExpenseBreakdown(expenses) {
+            const container = document.getElementById('expenseBreakdown');
+            
+            if (expenses.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 20px;">No expense data for selected period</p>';
+                return;
+            }
+            
+            // Sort by amount descending
+            expenses.sort((a, b) => b.amount - a.amount);
+            
+            let html = '';
+            expenses.forEach(expense => {
+                html += `
+                    <div class="expense-item">
+                        <div>
+                            <div class="expense-purpose">${expense.purpose}</div>
+                            <div class="expense-date">${new Date(expense.date).toLocaleDateString('en-IN')}</div>
+                        </div>
+                        <div class="expense-amount">৳${formatNumber(expense.amount)}</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function formatNumber(num) {
+            return parseFloat(num).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        function exportToPDF() {
+            window.print();
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

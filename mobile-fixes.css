@@ -1,0 +1,360 @@
+/* ===============================
+   MOBILE RESPONSIVENESS FIXES
+   For GitHub Pages Mobile Access
+   =============================== */
+
+/* Fix for touch events on mobile */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Ensure modals work on mobile */
+.modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-overlay.active {
+    display: flex !important;
+}
+
+.modal {
+    position: relative;
+    max-width: 90%;
+    width: 500px;
+    max-height: 90vh;
+    margin: auto;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.modal-overlay.active .modal {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Service cards - better touch targets */
+.service-card {
+    min-height: 100px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.service-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+}
+
+/* Ensure services grid is touchable */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    touch-action: manipulation;
+}
+
+/* Mobile viewport adjustments */
+@media (max-width: 768px) {
+    /* Adjust service grid for mobile */
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .service-card {
+        min-height: 90px;
+        padding: 16px 12px;
+    }
+    
+    .service-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    
+    .service-name {
+        font-size: 13px;
+    }
+    
+    /* Modal adjustments */
+    .modal {
+        max-width: 95%;
+        margin: 20px;
+    }
+    
+    /* Input fields larger for mobile */
+    .form-input {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        min-height: 48px; /* Better touch target */
+    }
+    
+    /* Buttons larger for mobile */
+    .btn {
+        padding: 14px 24px;
+        font-size: 15px;
+        min-height: 48px;
+    }
+    
+    /* Stats grid adjustment */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    /* Two column layout stack on mobile */
+    .two-column-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Header adjustments */
+    .top-header {
+        padding: 16px 20px;
+        margin-left: 0;
+    }
+    
+    .content-area {
+        padding: 20px 16px;
+        margin-top: 70px;
+    }
+    
+    /* Make date picker mobile friendly */
+    input[type="date"] {
+        min-height: 48px;
+        font-size: 16px;
+    }
+}
+
+/* Small mobile phones */
+@media (max-width: 480px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .service-card {
+        min-height: 80px;
+    }
+    
+    /* Ensure sidebar doesn't overlap content */
+    .main-wrapper {
+        width: 100%;
+        margin-left: 0 !important;
+    }
+}
+
+/* Landscape mode on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .services-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .content-area {
+        margin-top: 60px;
+    }
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+    /* iOS specific fixes */
+    .modal-overlay {
+        position: fixed !important;
+    }
+    
+    input[type="date"],
+    input[type="number"],
+    input[type="text"] {
+        font-size: 16px !important; /* Prevents zoom */
+        -webkit-appearance: none;
+        border-radius: var(--radius-md);
+    }
+    
+    select {
+        font-size: 16px !important;
+        -webkit-appearance: none;
+    }
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+/* Better button press feedback on mobile */
+button:active,
+.btn:active {
+    transform: scale(0.97);
+}
+
+.service-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Ensure clickable elements are large enough */
+a, button, .clickable {
+    min-height: 44px; /* Apple's recommended minimum */
+    min-width: 44px;
+}
+
+/* Fix for customer cards on mobile */
+.customer-card {
+    min-height: 120px;
+    -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
+    touch-action: manipulation;
+}
+
+/* Fix search input on mobile */
+.search-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 12px 16px 12px 45px;
+}
+
+/* Toast notifications on mobile */
+@media (max-width: 768px) {
+    .toast-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+    }
+    
+    .toast {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .notification-container {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+    }
+}
+
+/* Fix for date picker compact on mobile */
+@media (max-width: 768px) {
+    .date-picker-compact {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .date-picker-compact label {
+        font-size: 14px;
+    }
+    
+    .form-input-inline {
+        width: 100%;
+    }
+}
+
+/* Ensure section headers don't overlap on mobile */
+.section-header {
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Fix modal footer buttons on mobile */
+@media (max-width: 768px) {
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+    }
+}
+
+/* Smooth scrolling for mobile */
+html {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Better spacing for mobile */
+@media (max-width: 768px) {
+    .section {
+        margin-bottom: 24px;
+    }
+    
+    .glass-card {
+        padding: 16px;
+    }
+}
+
+/* Fix for number inputs on mobile */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Ensure modals are scrollable on small screens */
+@media (max-height: 600px) {
+    .modal {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .modal-body {
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+}
+
+/* Fix for activity items on mobile */
+@media (max-width: 768px) {
+    .activity-item {
+        padding: 12px;
+    }
+    
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
+
+/* Ensure back button is accessible on mobile */
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+/* Fix for report pages on mobile */
+@media (max-width: 768px) {
+    .report-container,
+    .history-container {
+        margin-top: 70px;
+        padding: 0 16px;
+    }
+}

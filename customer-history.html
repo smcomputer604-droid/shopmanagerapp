@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer History - SM PRINT TECHNOLOGY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .history-container {
+            max-width: 1200px;
+            margin: 90px auto 40px;
+            padding: 0 32px;
+        }
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 14px 20px 14px 45px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            position: relative;
+        }
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+        .customer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .customer-card {
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .customer-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+        }
+        .customer-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .customer-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+        .transaction-list {
+            background: var(--glass-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+
+    <div class="history-container">
+        <div class="section-header">
+            <h1>Customer History</h1>
+            <p class="subtitle">Track all customer transactions</p>
+        </div>
+
+        <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search customers...">
+        </div>
+
+        <div class="customer-grid" id="customerGrid">
+            <p style="text-align: center; color: var(--text-tertiary); padding: 40px;">No customer data available</p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 id="customerModalName">Customer Details</h2>
+                <button class="modal-close" onclick="closeCustomerModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="customer-stats" style="border: none; margin-bottom: 20px;">
+                    <div class="stat-item">
+                        <div class="stat-value" id="modalTotalPurchases">0</div>
+                        <div class="stat-label">Purchases</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="modalTotalSpent">৳0</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="modalLastVisit">Never</div>
+                        <div class="stat-label">Last Visit</div>
+                    </div>
+                </div>
+                <h3 style="margin-bottom: 15px;">Transaction History</h3>
+                <div class="transaction-list" id="transactionList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let customers = {};
+
+        function init() {
+            loadCustomers();
+            document.getElementById('searchInput').addEventListener('input', filterCustomers);
+        }
+
+        function loadCustomers() {
+            const sales = JSON.parse(localStorage.getItem('shopflow_sales') || '[]');
+            
+            // Group by customer
+            customers = {};
+            sales.forEach(sale => {
+                const customerName = sale.customer || 'N/A';
+                if (customerName === 'N/A') return;
+
+                if (!customers[customerName]) {
+                    customers[customerName] = {
+                        name: customerName,
+                        transactions: [],
+                        totalSpent: 0,
+                        totalPurchases: 0
+                    };
+                }
+
+                customers[customerName].transactions.push(sale);
+                customers[customerName].totalSpent += sale.amount;
+                customers[customerName].totalPurchases++;
+            });
+
+            displayCustomers();
+        }
+
+        function displayCustomers(searchTerm = '') {
+            const grid = document.getElementById('customerGrid');
+            const customerList = Object.values(customers);
+
+            if (customerList.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 40px;">No customer data available</p>';
+                return;
+            }
+
+            const filtered = searchTerm 
+                ? customerList.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                : customerList;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 40px;">No customers found</p>';
+                return;
+            }
+
+            // Sort by total spent
+            filtered.sort((a, b) => b.totalSpent - a.totalSpent);
+
+            let html = '';
+            filtered.forEach(customer => {
+                const lastTransaction = customer.transactions[customer.transactions.length - 1];
+                const lastVisit = new Date(lastTransaction.date).toLocaleDateString('en-IN');
+
+                html += `
+                    <div class="customer-card glass-card" onclick="showCustomerDetails('${customer.name}')">
+                        <div class="customer-name">${customer.name}</div>
+                        <small style="color: var(--text-tertiary);">Last visit: ${lastVisit}</small>
+                        <div class="customer-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${customer.totalPurchases}</div>
+                                <div class="stat-label">Purchases</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">৳${customer.totalSpent.toFixed(2)}</div>
+                                <div class="stat-label">Total</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        function filterCustomers() {
+            const searchTerm = document.getElementById('searchInput').value;
+            displayCustomers(searchTerm);
+        }
+
+        function showCustomerDetails(customerName) {
+            const customer = customers[customerName];
+            if (!customer) return;
+
+            document.getElementById('customerModalName').textContent = customerName;
+            document.getElementById('modalTotalPurchases').textContent = customer.totalPurchases;
+            document.getElementById('modalTotalSpent').textContent = '৳' + customer.totalSpent.toFixed(2);
+
+            const lastTransaction = customer.transactions[customer.transactions.length - 1];
+            document.getElementById('modalLastVisit').textContent = new Date(lastTransaction.date).toLocaleDateString('en-IN');
+
+            // Display transactions
+            let html = '';
+            customer.transactions.reverse().forEach(transaction => {
+                html += `
+                    <div class="transaction-item">
+                        <div>
+                            <div style="font-weight: 600;">${transaction.service}</div>
+                            <small style="color: var(--text-tertiary);">${new Date(transaction.date).toLocaleDateString('en-IN')}</small>
+                        </div>
+                        <div style="font-weight: 700; color: var(--primary-color);">৳${transaction.amount.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('transactionList').innerHTML = html;
+            document.getElementById('customerModal').classList.add('active');
+        }
+
+        function closeCustomerModal() {
+            document.getElementById('customerModal').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

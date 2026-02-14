@@ -1,0 +1,275 @@
+/* ===============================
+   ENHANCED SIDEBAR WITH HIDDEN STATE
+   =============================== */
+
+/* Sidebar Toggle Button - Always visible */
+.sidebar-toggle {
+    position: fixed;
+    left: 20px;
+    top: 20px;
+    z-index: 1100;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.sidebar-toggle:active {
+    transform: scale(0.95);
+}
+
+.sidebar-toggle i {
+    font-size: 20px;
+}
+
+/* Hidden Sidebar by Default */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    box-shadow: var(--sidebar-shadow);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar.show {
+    transform: translateX(0);
+}
+
+/* Overlay when sidebar is open */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+
+.sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.sidebar-close {
+    display: flex;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-speed);
+}
+
+.sidebar-close:hover {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    transform: rotate(90deg);
+}
+
+/* Adjust main content when sidebar is hidden */
+.main-wrapper {
+    margin-left: 0;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Invoice Template Styles Enhancement */
+.template-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.template-card {
+    flex: 1;
+    min-width: 150px;
+    padding: 20px;
+    border: 2px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--glass-bg);
+}
+
+.template-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+}
+
+.template-card.active {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.template-card i {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.template-card div {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Payment Status Badges */
+.payment-status {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+}
+
+.payment-status.paid {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.payment-status.unpaid {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.payment-status.partial {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Enhanced Toast Notifications */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: white;
+    padding: 16px 20px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast i {
+    font-size: 20px;
+}
+
+.toast-success {
+    border-left: 4px solid #10b981;
+}
+
+.toast-success i {
+    color: #10b981;
+}
+
+.toast-error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast-error i {
+    color: #ef4444;
+}
+
+.toast-info {
+    border-left: 4px solid #3b82f6;
+}
+
+.toast-info i {
+    color: #3b82f6;
+}
+
+.toast-warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.toast-warning i {
+    color: #f59e0b;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 280px;
+    }
+    
+    .sidebar-toggle {
+        left: 15px;
+        top: 15px;
+        width: 45px;
+        height: 45px;
+    }
+    
+    .template-selector {
+        flex-direction: column;
+    }
+    
+    .template-card {
+        min-width: 100%;
+    }
+    
+    .toast {
+        min-width: 250px;
+    }
+}
+
+@media print {
+    .sidebar,
+    .sidebar-toggle,
+    .sidebar-overlay,
+    .toast-container {
+        display: none !important;
+    }
+}
