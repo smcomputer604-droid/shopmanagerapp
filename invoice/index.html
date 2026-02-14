@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator - SMPT Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background decoration -->
+    <div class="background-blur blur-1"></div>
+    <div class="background-blur blur-2"></div>
+    <div class="background-blur blur-3"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Back to Dashboard Button -->
+        <a href="../index.html" class="back-to-dashboard">
+            <span>← Back To Dashboard</span>
+        </a>
+        
+        <!-- Header -->
+        <header class="glass-card header">
+            <h1>Invoice Generator</h1>
+            <p>Professional Invoice System</p>
+        </header>
+
+        <!-- Configuration Panel -->
+        <div id="configPanel" class="glass-card config-panel" style="display: none;">
+            <div class="section-title">Shop Configuration</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Shop Name</label>
+                    <input type="text" id="configShopName" placeholder="Enter shop name">
+                </div>
+                <div class="form-group">
+                    <label>Proprietor Name</label>
+                    <input type="text" id="configPropName" placeholder="Enter proprietor name">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="configMobile" placeholder="Enter mobile number">
+                </div>
+                <div class="form-group">
+                    <label>Address Line 1</label>
+                    <input type="text" id="configAddress1" placeholder="Enter address">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Address Line 2</label>
+                    <input type="text" id="configAddress2" placeholder="Enter address (optional)">
+                </div>
+                <div class="form-group">
+                    <label>Currency Symbol</label>
+                    <input type="text" id="configCurrency" placeholder="৳, $, etc." maxlength="3">
+                </div>
+            </div>
+            <div class="config-buttons">
+                <button class="btn-primary" id="saveConfigBtn">Save Configuration</button>
+                <button class="btn-secondary" id="cancelConfigBtn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Invoice Form -->
+        <div id="invoiceForm" class="glass-card form-container">
+            <!-- Settings Button -->
+            <button class="btn-settings" id="openConfigBtn">⚙️ Settings</button>
+            <!-- Auto Fields -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Number</label>
+                    <input type="text" id="invoiceNumber" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Invoice Date</label>
+                    <input type="date" id="invoiceDate" readonly>
+                </div>
+            </div>
+
+            <!-- Customer Details -->
+            <div class="section-title">Customer Details</div>
+            <div class="form-row">
+                <div class="form-group full-width">
+                    <label>Customer Name <span class="required">*</span></label>
+                    <input type="text" id="customerName" placeholder="Enter customer name">
+                    <span class="error-message" id="nameError"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="customerPhone" placeholder="Enter phone number">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="customerAddress" placeholder="Enter address">
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="section-title">Invoice Items</div>
+            <div class="table-container">
+                <table id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Quantity</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <!-- Items will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn-secondary" id="addItemBtn">+ Add Item</button>
+            <span class="error-message" id="itemsError"></span>
+
+            <!-- Net Total -->
+            <div class="total-section">
+                <div class="total-row">
+                    <span class="total-label">Net Total:</span>
+                    <span class="total-value" id="netTotal">৳0.00</span>
+                </div>
+            </div>
+
+            <!-- Generate Invoice Button -->
+            <button class="btn-primary" id="generateBtn">Generate Invoice</button>
+
+            <!-- Payment Status Section (Hidden initially) -->
+            <div id="paymentSection" class="payment-section" style="display: none;">
+                <div class="section-title">Payment Status</div>
+                <div class="payment-options">
+                    <label class="radio-option">
+                        <input type="radio" name="paymentStatus" value="paid">
+                        <span>Paid</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paymentStatus" value="advance">
+                        <span>Advance</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paymentStatus" value="unpaid">
+                        <span>Unpaid</span>
+                    </label>
+                </div>
+
+                <!-- Advance Amount Input (Hidden initially) -->
+                <div id="advanceSection" style="display: none;">
+                    <div class="form-group">
+                        <label>Advance Amount</label>
+                        <input type="number" id="advanceAmount" placeholder="Enter advance amount" min="0" step="0.01">
+                        <span class="error-message" id="advanceError"></span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="finalizeBtn">Finalize Invoice</button>
+            </div>
+        </div>
+
+        <!-- Generated Invoice View (Hidden initially) -->
+        <div id="invoiceView" class="glass-card invoice-view" style="display: none;">
+            <div id="invoiceContent" class="invoice-content">
+                <!-- Invoice header - Two column layout -->
+                <div class="invoice-header-row">
+                    <div class="shop-details">
+                        <h2 id="displayShopName">SM PRINT TECHNOLOGY</h2>
+                        <p><span id="displayPropLabel">Prop:</span> <span id="displayPropName">Sohag Maih</span></p>
+                        <p><span id="displayMobLabel">Mob:</span> <span id="displayMobile">+8801710-097025</span></p>
+                        <p id="displayAddress1">Inathaganj Poschim Bazar</p>
+                        <p id="displayAddress2">Nabiganj, Habiganj</p>
+                    </div>
+                    <div class="invoice-title-section">
+                        <h1 class="invoice-title">Invoice</h1>
+                        <p class="invoice-meta"><strong>No:</strong> <span id="displayInvoiceNo"></span></p>
+                        <p class="invoice-meta"><strong>Date:</strong> <span id="displayDate"></span></p>
+                    </div>
+                </div>
+
+                <div class="invoice-divider-top"></div>
+
+                <!-- Customer details -->
+                <div class="customer-section">
+                    <p class="bill-to-label">Bill To: <span id="displayCustomerName"></span></p>
+                    <p class="customer-mobile"><strong id="displayMobLabel2">Mob:</strong> <span id="displayCustomerPhone"></span></p>
+                </div>
+
+                <div class="invoice-divider-middle"></div>
+
+                <!-- Items table -->
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">No</th>
+                            <th class="col-desc">Description</th>
+                            <th class="col-rate">Rate</th>
+                            <th class="col-qty">Qty</th>
+                            <th class="col-total">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="displayItemsBody">
+                        <!-- Items will be populated here -->
+                    </tbody>
+                </table>
+
+                <div class="invoice-divider-bottom"></div>
+
+                <!-- Invoice Bottom Section - Stamp and Totals Side by Side -->
+                <div class="invoice-bottom-section">
+                    <!-- Left Side - Payment Stamp Image -->
+                    <div class="stamp-container">
+                        <img id="paymentStampImage" class="payment-stamp-image" style="display: none;" alt="Payment Stamp">
+                    </div>
+                    
+                    <!-- Right Side - Totals Section -->
+                    <div class="totals-section">
+                        <div class="total-line">
+                            <span class="total-label">SUBTOTAL</span>
+                            <span class="total-dots">:</span>
+                            <span class="total-amount" id="displaySubtotal"></span>
+                        </div>
+                        <div class="total-line" id="displayAdvanceLine" style="display: none;">
+                            <span class="total-label">ADVANCE</span>
+                            <span class="total-dots">:</span>
+                            <span class="total-amount" id="displayAdvanceAmount"></span>
+                        </div>
+                        <div class="total-line" id="displayDueLine" style="display: none;">
+                            <span class="total-label">DUE</span>
+                            <span class="total-dots">:</span>
+                            <span class="total-amount" id="displayDueAmount"></span>
+                        </div>
+                        <div class="total-line total-line-main">
+                            <span class="total-label-main">TOTAL</span>
+                            <span class="total-dots">:</span>
+                            <span class="total-amount-main" id="displayTotalAmount"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="invoice-divider-final"></div>
+
+                <div class="invoice-footer">
+                    <p id="displayFooterText">Thanks for choosing SM PRINT TECHNOLOGY</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-secondary" id="printBtn">🖨️ Print</button>
+                <div class="download-dropdown">
+                    <button class="btn-primary dropdown-toggle" id="downloadAsBtn">📄 Download As ▼</button>
+                    <div class="download-options" id="downloadOptions">
+                        <button class="download-option" data-format="pdf">Download as PDF</button>
+                        <button class="download-option" data-format="png">Download as PNG</button>
+                    </div>
+                </div>
+                <button class="btn-primary" id="saveToSheetBtn">💾 Save to Database</button>
+                <button class="btn-secondary" id="newInvoiceBtn">+ New Invoice</button>
+            </div>
+        </div>
+    </div>
+
+
+	<!-- Main JavaScript -->
+    <script src="script.js"></script>
+    <!-- jsPDF Library (CDN with fallback instruction) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas Library for PNG export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+</body>
+</html>
