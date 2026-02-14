@@ -432,17 +432,45 @@ function loadServices() {
     
     elements.servicesGrid.innerHTML = html;
     
-    // Add click listeners
+    // Add both click and touch listeners for mobile compatibility
     document.querySelectorAll('.service-card').forEach(card => {
-        card.addEventListener('click', () => {
+        // Prevent default touch behavior
+        card.style.cursor = 'pointer';
+        card.style.webkitTapHighlightColor = 'rgba(102, 126, 234, 0.2)';
+        
+        // Touch start for visual feedback
+        card.addEventListener('touchstart', (e) => {
+            card.style.transform = 'scale(0.98)';
+        }, { passive: true });
+        
+        // Touch end to reset
+        card.addEventListener('touchend', (e) => {
+            card.style.transform = 'scale(1)';
+        }, { passive: true });
+        
+        // Click event for both mouse and touch
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const serviceId = card.getAttribute('data-service-id');
             const serviceName = card.getAttribute('data-service-name');
+            console.log('Service clicked:', serviceName); // Debug log
             openServiceModal(serviceId, serviceName);
         });
+        
+        // Touchend as backup for mobile
+        card.addEventListener('touchend', (e) => {
+            const serviceId = card.getAttribute('data-service-id');
+            const serviceName = card.getAttribute('data-service-name');
+            console.log('Service touched:', serviceName); // Debug log
+            openServiceModal(serviceId, serviceName);
+        }, { passive: false });
     });
 }
 
 function openServiceModal(serviceId, serviceName) {
+    console.log('Opening modal for:', serviceName); // Debug log
+    
     state.selectedService = { id: serviceId, name: serviceName };
     
     if (elements.modalServiceName) {
@@ -451,14 +479,24 @@ function openServiceModal(serviceId, serviceName) {
     
     if (elements.serviceAmount) {
         elements.serviceAmount.value = '';
-        setTimeout(() => elements.serviceAmount.focus(), 100);
+        // Delay focus to prevent keyboard issues on mobile
+        setTimeout(() => {
+            if (window.innerWidth > 768) {
+                elements.serviceAmount.focus();
+            }
+        }, 300);
     }
     
     if (elements.customerName) {
         elements.customerName.value = '';
     }
     
+    // Prevent body scroll on mobile when modal is open
+    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
+    
     openModal('serviceModal');
+    console.log('Modal opened'); // Debug log
 }
 
 // ===============================
@@ -1030,6 +1068,9 @@ function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         modal.classList.remove('active');
+        // Restore body scroll
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
     }
 }
 
